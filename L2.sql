@@ -11,13 +11,9 @@ SELECT
   ELSE amount_w_vat
  END AS amount_w_vat
 -- dopočet bez daně
- ,CASE 
-  WHEN amount_w_vat < 0 THEN 0
-  ELSE amount_w_vat / 1.2
- END AS amount_wo_vat
+ ,IF(amount_w_vat < 0, 0, amount_w_vat / 1.2) AS amount_wo_vat
  ,return_w_vat
  ,flag_invoice_issued
- ,invoice_status
  ,date_issue
  ,due_date
  ,paid_date
@@ -43,10 +39,7 @@ SELECT
  ,product_status
  ,price_wo_vat_usd
 -- dopočítat cenu s daní
- ,CASE 
-  WHEN price_wo_vat_usd < 0 THEN 0
-  ELSE price_wo_vat_usd * 1.2
- END AS price_w_vat_usd
+ ,IF(price_wo_vat_usd < 0, 0, price_wo_vat_usd * 1.2) AS price_w_vat_usd
  ,product_valid_from
  ,product_valid_to
 -- vytvořit flag_unlimited_product
@@ -57,7 +50,6 @@ SELECT
 FROM `utility-terrain-455612-s3.L1.L1_product_purchase` 
 WHERE product_category in ("product", "rent")
  AND product_status IS NOT NULL AND product_status not in ("canceled", "canceled registration", "disconnected")
- AND product_valid_from IS NOT NULL AND product_valid_to IS NOT NULL
 
 ;-- L2_contract
 CREATE OR REPLACE VIEW `utility-terrain-455612-s3.L2.L2_contract` AS 
