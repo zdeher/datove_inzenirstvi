@@ -23,7 +23,7 @@ SELECT
   ELSE NULL
 END AS is_vat_applicable
 FROM `utility-terrain-455612-s3.L0_google_sheet.product`
-WHERE id_product != "NULL" -- ID nesmí být prázdné
+WHERE id_product IS NOT NULL -- ID nesmí být prázdné
 QUALIFY ROW_NUMBER() OVER(PARTITION BY id_product) = 1 -- nesmí být duplicity
 
 ;-- L1_status 
@@ -33,8 +33,8 @@ SELECT
  ,LOWER(status_name) AS product_status_name
  ,DATE(TIMESTAMP(PARSE_DATE("%d/%m/%Y",date_update)), "Europe/Prague") AS product_status_update_date
 FROM `utility-terrain-455612-s3.L0_google_sheet.status`
-WHERE id_status != "NULL"
- AND status_name != "NULL" -- ID a jméno nesmí být prázdné
+WHERE id_status != ""
+ AND status_name != "" -- ID a jméno nesmí být prázdné
 QUALIFY ROW_NUMBER() OVER(PARTITION BY product_status_id) = 1 -- nesmí být duplicity
 
 ;-- L1_accounting_system 
@@ -46,7 +46,7 @@ SELECT
  ,CAST(invoice_id_contract AS INT) AS contract_id --FK
  ,CAST(number AS INT) AS invoice_number
  ,CAST(status AS INT) AS invoice_status_id -- FK??
- ,IF(status < 100, "have been issued", "not issued") AS invoice_status -- Invoice status < 100  have been issued. >= 100 - not issued 
+-- Invoice status < 100  have been issued. >= 100 - not issued 
  ,IF(status < 100, TRUE, FALSE) AS flag_invoice_issued
  ,CAST(id_branch AS INT) AS branch_id -- FK
  ,CAST(value AS FLOAT64) AS amount_w_vat
